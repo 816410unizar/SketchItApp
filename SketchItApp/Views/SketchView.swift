@@ -19,6 +19,7 @@ struct SketchView: View {
     @State private var showSaveAlert = false
     @State private var showExitAlert = false
     @State private var showClearAlert = false
+    @State private var saved = true    // True if all changes have been saved
 
     @State private var sketchTitle = "" // To change the title of the sketch
     @State private var tmpTitle = ""    // Temporary title needed for the alert
@@ -55,6 +56,7 @@ struct SketchView: View {
                                 // limitted to [0, screen width]
                                 currentPoint.x = min(max(0, currentPoint.x - delta), geometry.size.width)
                                 points.append(currentPoint)
+                                saved = false // When modifying the sketch, set the sketch as not saved
                             }
                             Spacer()
                             // Right knob (Move the cursor up/down)
@@ -63,6 +65,7 @@ struct SketchView: View {
                                 // limitted to [0, screen height]
                                 currentPoint.y = min(max(0, currentPoint.y + delta), geometry.size.height)
                                 points.append(currentPoint)
+                                saved = false // When modifying the sketch, set the sketch as not saved
                             }
                         }
                         .padding()
@@ -74,7 +77,11 @@ struct SketchView: View {
                     // Back button to go back to the home screen
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {    // Back button
-                            showExitAlert = true
+                            if saved {   // If the sketch is saved, go back to the home screen
+                                navModel.currentScreen = .home
+                            } else {    // If the sketch is not saved, show an alert
+                                showExitAlert = true  // Show exit alert
+                            }
                         }) {
                             Image(systemName: "chevron.left")
                                 .foregroundColor(Color(red: 1.0, green: 0, blue: 0))
@@ -106,6 +113,7 @@ struct SketchView: View {
                         sketchTitle = tmpTitle // Set the title to the temporary title
                         saveSketch(title: sketchTitle)  // Save the sketch with the title
                         tmpTitle = "" // Reset the temporary title
+                        saved = true // Set the sketch as saved
                     }
                     // Disable the Save button if the title is empty (incluiding spaces) or exceeds 25 characters
                     .disabled(tmpTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || tmpTitle.count > 25)
@@ -124,6 +132,7 @@ struct SketchView: View {
                     Button("Cancel", role: .cancel) {}
                     Button("Yes", role: .destructive) {
                         points = [currentPoint] // Clear all the points but keep the cursor
+                        saved = false // When modifying the sketch, set the sketch as not saved
                     }
                 }
                 .onAppear {

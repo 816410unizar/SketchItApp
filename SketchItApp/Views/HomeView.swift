@@ -11,9 +11,6 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var navModel: NavigationModel    // Shared instance of NavigationModel to handle navigation
     @State private var playerName: String = ""
-
-    // Background color
-    let bgColor = Color(red: 0.93, green: 0.93, blue: 0.93)
     
     var body: some View {
         // GeometryReader needed to auto update when orientation changes
@@ -25,17 +22,14 @@ struct HomeView: View {
             let isBigPhone = max(screenSize.width, screenSize.height) > 700
 
             ZStack { // ZStack for the background and everything else over it
-                // Gray gradient background
-                LinearGradient(
-                    gradient: Gradient(colors: [bgColor.opacity(0.5), bgColor.opacity(1.0)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-
                 ScrollView {
                     VStack(spacing: isLandscape ? 10 : refSize * 0.05) {    // Spacing between elements depends on orientation
-                        Spacer(minLength: isBigPhone ? refSize * 0.1 : refSize * 0.05)   // Spacer to push the title down
+
+                        if isLandscape {
+                            Spacer(minLength: isBigPhone ? refSize * 0.1 : refSize * 0.05)   // Spacer to push the title down
+                        } else {
+                            Spacer(minLength: isBigPhone ? refSize * 0.3 : refSize * 0.2)   // Spacer to push the title down
+                        }
                         
                         // Title
                         Image("SketchItApp")
@@ -44,7 +38,11 @@ struct HomeView: View {
                             .frame(width: refSize * 0.8)
                             .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
                         
-                        Spacer(minLength: isBigPhone ? refSize * 0.1 : refSize * 0.1)   // Spacer to push the buttons down
+                        if isLandscape {
+                            Spacer(minLength: isBigPhone ? refSize * 0.1 : refSize * 0.1)   // Spacer to push the buttons down
+                        } else {
+                            Spacer(minLength: isBigPhone ? refSize * 0.2 : refSize * 0.2)   // Spacer to push the buttons down
+                        }
 
                         // 2 rows: New Sketch and My Sketches buttons
                         VStack(spacing: 30) {
