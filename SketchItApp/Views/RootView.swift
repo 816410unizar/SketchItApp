@@ -13,22 +13,22 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
-            // Switch to change screens
             switch navModel.currentScreen {
             case .home:
                 HomeView()
-                    // Transition to fade in and out
                     .transition(.opacity)
             case .sketch:
                 SketchView()
-                    // Transition to scale in and move out to the bottom
-                    .transition(.asymmetric(insertion: .scale.combined(with: .opacity),
-                                            removal: .move(edge: .bottom).combined(with: .opacity)))
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    ))
             case .savedSketches:
                 SavedSketchesView()
-                    // Transition to scale in and move out to the bottom
-                    .transition(.asymmetric(insertion: .scale.combined(with: .opacity),
-                                            removal: .move(edge: .bottom).combined(with: .opacity)))
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .move(edge: .bottom).combined(with: .opacity)
+                    ))
             }
         }
         .animation(.easeInOut(duration: 0.2), value: navModel.currentScreen)

@@ -13,6 +13,7 @@ struct SketchView: View {
     // Points of the sketch
     @State private var points: [CGPoint] = [CGPoint(x: 360, y: 200)] // Initialize on center of the screen (landscape)
     @State private var currentPoint = CGPoint(x: 360, y: 200)
+    @State private var lastPoint: CGPoint?
 
     // State variables for the Back and Save button popups
     @State private var showSaveAlert = false
@@ -91,27 +92,46 @@ struct SketchView: View {
                     }
                 }
             }
+            .onAppear {
+                if let sketch = navModel.currentSketch {
+                    self.points = sketch.points
+                    self.currentPoint = sketch.lastPoint ?? CGPoint(x: 360, y: 200)
+                }
+            }
+
         }
     }
 
     // Save a sketch in UserDefaults with a unique ID
     func saveSketch(title: String) {
-        // Create a new sketch with the current points and title
-        let sketch = Sketch(title: title, points: points, lastPoint: currentPoint)
-        // Load existing sketches from UserDefaults
-        var savedSketches = loadAllSketches()
-        // Append the new sketch to the existing sketches
-        savedSketches.append(sketch)
-        do {
-            // Save the updated sketches to UserDefaults
-            let data = try JSONEncoder().encode(savedSketches)
-            UserDefaults.standard.set(data, forKey: "Sketches")
-        } catch {
-            print("Failed to save sketch: \(error)")
+        var savedSketches: [Sketch] = []
+
+        if let data = UserDefaults.standard.data(forKey: "savedSketches"),
+           let decoded = try? JSONDecoder().decode([Sketch].self, from: data) {
+            savedSketches = decoded
         }
+
+        let sketchToSave = Sketch(
+            id: navModel.currentSketch?.id ?? UUID(),  // If editing, reuse ID
+            title: title,
+            points: points
+        )
+
+        // Remove old sketch with same ID if editing
+        savedSketches.removeAll { $0.id == sketchToSave.id }
+        savedSketches.append(sketchToSave)
+
+        if let encoded = try? JSONEncoder().encode(savedSketches) {
+            UserDefaults.standard.set(encoded, forKey: "savedSketches")
+        }
+
+        // Clear editing context and go back
+        navModel.currentSketch = nil
+        navModel.currentPoint = nil
+        navModel.currentScreen = .home
     }
 
-    // Load all sketches from UserDefaults
+
     func loadAllSketches() -> [Sketch] {
         if let data = UserDefaults.standard.data(forKey: "Sketches") {
             do {

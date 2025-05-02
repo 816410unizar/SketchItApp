@@ -48,17 +48,6 @@ struct HomeView: View {
 
                         // 2 rows: New Sketch and My Sketches buttons
                         VStack(spacing: 30) {
-                            // New Sketch row
-                            //HStack(spacing: 15) {
-                                // Image("")
-                                //     .resizable()
-                                //     .frame(width: 60, height: 60)
-                                //     .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
-                                //     .onTapGesture {
-                                //         // Tapping the bubble is like clicking the button
-                                //         navModel.currentScreen = .settings
-                                //     }
-
                                 Button(action: {
                                     navModel.currentScreen = .sketch
                                 }) {
