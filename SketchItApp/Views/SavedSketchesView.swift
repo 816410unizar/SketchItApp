@@ -112,6 +112,9 @@ struct SavedSketchesView: View {
 }
 
 #Preview {
-    SavedSketchesView()
-        .environmentObject(NavigationModel())
+    let navModel = NavigationModel()
+    navModel.currentScreen = .savedSketches    // Current screen
+
+    return RootView()   // Root view displaying the current screen
+        .environmentObject(navModel)
 }

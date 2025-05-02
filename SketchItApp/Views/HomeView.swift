@@ -101,7 +101,13 @@ struct HomeView: View {
                             // .frame(maxWidth: .infinity, alignment: .center) // Align to the center
                         }
                         .frame(maxWidth: .infinity, alignment: .center) // Align to the center
-                        
+                        KeyCommandHandler { command in
+                            if command.input == "s" {
+                                print("s key pressed")
+                                navModel.currentScreen = .savedSketches
+                            }
+                        }
+                        .frame(width: 0, height: 0)
                         // Image below buttons
                         // Image("")
                         //     .resizable()
@@ -118,7 +124,10 @@ struct HomeView: View {
 
 
 #Preview {
-    HomeView()
-        .environmentObject(NavigationModel())
+    let navModel = NavigationModel()
+    navModel.currentScreen = .home    // Current screen
+
+    return RootView()   // Root view displaying the current screen
+        .environmentObject(navModel)
 }
 
