@@ -18,6 +18,8 @@ struct SketchView: View {
     // State variables for the Back and Save button popups
     @State private var showSaveAlert = false
     @State private var showExitAlert = false
+    @State private var showClearAlert = false
+
     @State private var sketchTitle = "" // To change the title of the sketch
     @State private var tmpTitle = ""    // Temporary title needed for the alert
 
@@ -62,7 +64,8 @@ struct SketchView: View {
                 }
                 .navigationTitle(sketchTitle.isEmpty ? "Untitled" : sketchTitle)
                 .navigationBarTitleDisplayMode(.inline)
-                .toolbar {  // Top toolbar with Back and Save buttons
+                .toolbar {  // Top toolbar
+                    // Back button to go back to the home screen
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {    // Back button
                             showExitAlert = true
@@ -73,13 +76,22 @@ struct SketchView: View {
                                 .foregroundColor(Color(red: 1.0, green: 0, blue: 0))
                         }
                     }
+                    // Menu with Save and Clear options
                     ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Save") {    // Save button
-                            showSaveAlert = true
-                        }.foregroundColor(Color(red: 1.0, green: 0, blue: 0))
+                        Menu {
+                            Button("Save", action: { showSaveAlert = true })    // To save the sketch
+                            Button("Clear", role: .destructive) {   // To clear the entire sketch
+                                showClearAlert = true
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")    // Triple dot menu icon
+                                .foregroundColor(Color(red: 1.0, green: 0, blue: 0))
+                                .imageScale(.large)
+                        }
                     }
                 }
-                .alert("Enter sketch title:", isPresented: $showSaveAlert) {    // Save popup
+                // Save alert
+                .alert("Enter a sketch title:", isPresented: $showSaveAlert) {
                     TextField("Title", text: $tmpTitle)
                     Button("Cancel", role: .cancel) {
                         tmpTitle = ""  // Reset the temporary title
@@ -94,10 +106,18 @@ struct SketchView: View {
                 } message: {
                     Text("1–25 characters long.")
                 }
-                .alert("Leave without saving?", isPresented: $showExitAlert) {  // Exit popup
+                // Exit alert
+                .alert("Leave without saving?", isPresented: $showExitAlert) {
                     Button("Cancel", role: .cancel) {}
                     Button("Yes", role: .destructive) {
                         navModel.currentScreen = .home  // Go back to the home screen
+                    }
+                }
+                // Clear alert
+                .alert("Are you sure you want to clear the sketch?", isPresented: $showClearAlert) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Yes", role: .destructive) {
+                        points = [currentPoint] // Clear all the points but keep the cursor
                     }
                 }
                 .onAppear {
