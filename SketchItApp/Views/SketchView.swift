@@ -19,6 +19,7 @@ struct SketchView: View {
     @State private var showSaveAlert = false
     @State private var showExitAlert = false
     @State private var sketchTitle = "" // To change the title of the sketch
+    @State private var tmpTitle = ""    // Temporary title needed for the alert
 
     var body: some View {
         NavigationView {
@@ -59,7 +60,8 @@ struct SketchView: View {
                         .padding()
                     }
                 }
-                //.navigationBarTitleDisplayMode(.inline)
+                .navigationTitle(sketchTitle.isEmpty ? "Untitled" : sketchTitle)
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {  // Top toolbar with Back and Save buttons
                     ToolbarItem(placement: .navigationBarLeading) {
                         Button(action: {    // Back button
@@ -78,12 +80,19 @@ struct SketchView: View {
                     }
                 }
                 .alert("Enter sketch title:", isPresented: $showSaveAlert) {    // Save popup
-                    TextField("Title", text: $sketchTitle)
-                    Button("Cancel", role: .cancel) {}
-                    Button("Save") {
-                        saveSketch(title: sketchTitle)  // Save the sketch with the title
-                        sketchTitle = ""
+                    TextField("Title", text: $tmpTitle)
+                    Button("Cancel", role: .cancel) {
+                        tmpTitle = ""  // Reset the temporary title
                     }
+                    Button("Save") {
+                        sketchTitle = tmpTitle // Set the title to the temporary title
+                        saveSketch(title: sketchTitle)  // Save the sketch with the title
+                        tmpTitle = "" // Reset the temporary title
+                    }
+                    // Disable the Save button if the title is empty (incluiding spaces) or exceeds 25 characters
+                    .disabled(tmpTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || tmpTitle.count > 25)
+                } message: {
+                    Text("1–25 characters long.")
                 }
                 .alert("Leave without saving?", isPresented: $showExitAlert) {  // Exit popup
                     Button("Cancel", role: .cancel) {}
