@@ -15,8 +15,6 @@ struct SketchView: View {
     @State private var points: [CGPoint] = []           // Stores the points of the sketch
     @State private var currentPoint: CGPoint = .zero    // Current point of the drawing cursor
 
-    //@State private var isInitialized = false            // To only initialize once
-
     // State variables for the Back and Save button popups
     @State private var showSaveAlert = false
     @State private var showExitAlert = false
@@ -25,13 +23,6 @@ struct SketchView: View {
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
-                let screenSize = geometry.size
-                let centerPoint = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
-                // // Reference size for scaling, the minimum value between width and height of the screen
-                // let refSize = min(screenSize.width, screenSize.height)
-                // let isLandscape = screenSize.width > screenSize.height
-                // let isBigPhone = max(screenSize.width, screenSize.height) > 700
-
                 ZStack {
                     // Create a path to draw the sketch (path is a collection of lines and curves)
                     Path { path in  
@@ -101,18 +92,17 @@ struct SketchView: View {
                     }
                 }
                 .onAppear {
-                    // Only initialize once
-                    // if !isInitialized {
+                    DispatchQueue.main.async {  // This is needed to ensure geometry is loaded before using it for the center point
                         if let sketch = sketch {    // If there is a sketch to edit
                             points = sketch.points  // Load the points from the sketch
                             currentPoint = sketch.lastPoint // Set the current point to the last point of the sketch
                             sketchTitle = sketch.title  // Set the title to the sketch title
                         } else {    // If there is no sketch to edit
+                            let centerPoint = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
                             currentPoint = centerPoint  // Set the cursor to the center of the screen
                             points = [centerPoint]      // Start with an empty sketch with only the cursor
                         }
-                        //isInitialized = true
-                    //}
+                    }
                 }
             }
         }
@@ -141,7 +131,6 @@ struct SketchView: View {
             do {
                 // Load decoded sketches from UserDefaults
                 let sketches = try JSONDecoder().decode([Sketch].self, from: data)
-                print("Loaded sketches: \(sketches)") // Debug
                 return sketches
             } catch {
                 print("Failed to load sketches: \(error)")
