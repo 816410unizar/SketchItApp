@@ -11,7 +11,7 @@ import SwiftUI
 class NavigationModel: ObservableObject {
     enum Screen: Equatable { // Needs to be Equatable to be used for animations
         case home
-        case sketch
+        case sketch(sketch: Sketch?) // Optional sketch to allow for editing
         case savedSketches
     }
 

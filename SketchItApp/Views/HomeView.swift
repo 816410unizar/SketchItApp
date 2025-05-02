@@ -60,7 +60,7 @@ struct HomeView: View {
                                 //     }
 
                                 Button(action: {
-                                    navModel.currentScreen = .sketch
+                                    navModel.currentScreen = .sketch(sketch: nil)
                                 }) {
                                     Text("NEW SKETCH")
                                         .font(.system(.title3, design: .rounded))   // Rounded font

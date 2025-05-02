@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct SketchView: View {
+    var sketch: Sketch? // Optional sketch to allow for editing
+
     @EnvironmentObject var navModel: NavigationModel    // Shared instance of NavigationModel to handle navigation
     
-    // Points of the sketch
-    @State private var points: [CGPoint] = [CGPoint(x: 360, y: 200)] // Initialize on center of the screen (landscape)
-    @State private var currentPoint = CGPoint(x: 360, y: 200)
+    @State private var points: [CGPoint] = []           // Stores the points of the sketch
+    @State private var currentPoint: CGPoint = .zero    // Current point of the drawing cursor
+
+    //@State private var isInitialized = false            // To only initialize once
 
     // State variables for the Back and Save button popups
     @State private var showSaveAlert = false
@@ -22,6 +25,13 @@ struct SketchView: View {
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
+                let screenSize = geometry.size
+                let centerPoint = CGPoint(x: screenSize.width / 2, y: screenSize.height / 2)
+                // // Reference size for scaling, the minimum value between width and height of the screen
+                // let refSize = min(screenSize.width, screenSize.height)
+                // let isLandscape = screenSize.width > screenSize.height
+                // let isBigPhone = max(screenSize.width, screenSize.height) > 700
+
                 ZStack {
                     // Create a path to draw the sketch (path is a collection of lines and curves)
                     Path { path in  
@@ -90,6 +100,20 @@ struct SketchView: View {
                         navModel.currentScreen = .home  // Go back to the home screen
                     }
                 }
+                .onAppear {
+                    // Only initialize once
+                    // if !isInitialized {
+                        if let sketch = sketch {    // If there is a sketch to edit
+                            points = sketch.points  // Load the points from the sketch
+                            currentPoint = sketch.lastPoint // Set the current point to the last point of the sketch
+                            sketchTitle = sketch.title  // Set the title to the sketch title
+                        } else {    // If there is no sketch to edit
+                            currentPoint = centerPoint  // Set the cursor to the center of the screen
+                            points = [centerPoint]      // Start with an empty sketch with only the cursor
+                        }
+                        //isInitialized = true
+                    //}
+                }
             }
         }
     }
@@ -129,8 +153,26 @@ struct SketchView: View {
 
 #Preview {
     let navModel = NavigationModel()
-    navModel.currentScreen = .sketch    // Current screen
+    navModel.currentScreen = .sketch(sketch: nil)    // Current screen
 
     return RootView()   // Root view displaying the current screen
         .environmentObject(navModel)
+    // func loadFirstSavedSketch() -> Sketch? {
+    //         if let data = UserDefaults.standard.data(forKey: "Sketches") {
+    //             do {
+    //                 let sketches = try JSONDecoder().decode([Sketch].self, from: data)
+    //                 return sketches.first
+    //             } catch {
+    //                 print("Failed to load sketches: \(error)")
+    //             }
+    //         }
+    //         return nil
+    //     }
+
+    // let navModel = NavigationModel()
+    // let loadedSketch = loadFirstSavedSketch() // Load the first saved sketch
+    // navModel.currentScreen = .sketch(sketch: loadedSketch)
+
+    // return RootView()
+    //     .environmentObject(navModel)
 }

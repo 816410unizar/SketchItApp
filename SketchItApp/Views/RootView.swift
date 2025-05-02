@@ -19,8 +19,8 @@ struct RootView: View {
                 HomeView()
                     // Transition to fade in and out
                     .transition(.opacity)
-            case .sketch:
-                SketchView()
+            case .sketch(let sketch):
+                SketchView(sketch: sketch)
                     // Transition to scale in and move out to the bottom
                     .transition(.asymmetric(insertion: .scale.combined(with: .opacity),
                                             removal: .move(edge: .bottom).combined(with: .opacity)))
