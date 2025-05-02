@@ -45,16 +45,22 @@ struct SketchView: View {
                         .frame(width: 5, height: 5)
                         .position(currentPoint)
 
-                    // Knobs to draw
+                    // Etch a Sketch knobs to draw (both knobs must be dragged vertically to be moved)
                     VStack {
                         Spacer()
                         HStack {
-                            KnobView(axis: .horizontal) { delta in
-                                currentPoint.x = min(max(0, currentPoint.x + delta), geometry.size.width)
+                            // Left knob (Move the cursor left/right)
+                            KnobView(axis: .vertical) { delta in
+                                // Move the cursor by the ammount delta calculated in the KnobView
+                                // limitted to [0, screen width]
+                                currentPoint.x = min(max(0, currentPoint.x - delta), geometry.size.width)
                                 points.append(currentPoint)
                             }
                             Spacer()
+                            // Right knob (Move the cursor up/down)
                             KnobView(axis: .vertical) { delta in
+                                // Move the cursor by the ammount delta calculated in the KnobView
+                                // limitted to [0, screen height]
                                 currentPoint.y = min(max(0, currentPoint.y + delta), geometry.size.height)
                                 points.append(currentPoint)
                             }
