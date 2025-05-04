@@ -92,7 +92,18 @@ struct SketchView: View {
                     // Menu with Save and Clear options
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
-                            Button("Save", action: { showSaveAlert = true })    // To save the sketch
+                            Button("Save") {
+                                if sketch != nil {
+                                    // Save existing sketch silently
+                                    sketchTitle = sketch?.title ?? "Untitled"
+                                    saveSketch(title: sketchTitle, overwrite: true)
+                                    saved = true
+                                } else {
+                                    // Prompt for title for new sketches
+                                    showSaveAlert = true
+                                }
+                            }
+                            // To save the sketch
                             Button("Clear", role: .destructive) {   // To clear the entire sketch
                                 showClearAlert = true
                             }
@@ -131,6 +142,11 @@ struct SketchView: View {
                 .alert("Are you sure you want to clear the sketch?", isPresented: $showClearAlert) {
                     Button("Cancel", role: .cancel) {}
                     Button("Yes", role: .destructive) {
+                        var centerPoint: CGPoint {
+                            // Assuming screen size is full screen
+                            return CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
+                        }
+                        currentPoint = centerPoint //Reset cursor back to center
                         points = [currentPoint] // Clear all the points but keep the cursor
                         saved = false // When modifying the sketch, set the sketch as not saved
                     }
@@ -153,25 +169,33 @@ struct SketchView: View {
     }
 
     // Save a sketch in UserDefaults with a unique ID
-    func saveSketch(title: String) {
-        // Create a new sketch with the current points and title
-        let sketch = Sketch(title: title, points: points, lastPoint: currentPoint)
-        // Load existing sketches from UserDefaults
+    func saveSketch(title: String, overwrite: Bool = false) {
+        let newSketch = Sketch(title: title, points: points, lastPoint: currentPoint)
         var savedSketches = loadAllSketches()
-        // Append the new sketch to the existing sketches
-        savedSketches.append(sketch)
+        
+        if overwrite {
+            // Find and replace the sketch with the same title
+            if let index = savedSketches.firstIndex(where: { $0.title == title }) {
+                savedSketches[index] = newSketch
+            } else {
+                savedSketches.append(newSketch) // Just in case
+            }
+        } else {
+            savedSketches.append(newSketch)
+        }
+
         do {
-            // Save the updated sketches to UserDefaults
             let data = try JSONEncoder().encode(savedSketches)
-            UserDefaults.standard.set(data, forKey: "Sketches")
+            UserDefaults.standard.set(data, forKey: "savedSketches")
         } catch {
             print("Failed to save sketch: \(error)")
         }
     }
 
+
     // Load all sketches from UserDefaults
     func loadAllSketches() -> [Sketch] {
-        if let data = UserDefaults.standard.data(forKey: "Sketches") {
+        if let data = UserDefaults.standard.data(forKey: "savedSketches") {
             do {
                 // Load decoded sketches from UserDefaults
                 let sketches = try JSONDecoder().decode([Sketch].self, from: data)
