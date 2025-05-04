@@ -9,9 +9,6 @@ import SwiftUI
 
 struct SavedSketchesView: View {
     @EnvironmentObject var navModel: NavigationModel    // Shared instance of NavigationModel to handle navigation
-
-    // Background color
-    let bgColor = Color(red: 0.93, green: 0.93, blue: 0.93)
     
     var body: some View {
         // GeometryReader needed to auto update when orientation changes
@@ -23,14 +20,6 @@ struct SavedSketchesView: View {
             let isBigPhone = max(screenSize.width, screenSize.height) > 700
 
             ZStack {    // ZStack for the background and everything else over it
-                // Gray gradient background
-                LinearGradient(
-                    gradient: Gradient(colors: [bgColor.opacity(0.5), bgColor.opacity(1.0)]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-
                 VStack(spacing: isLandscape ? 10 : refSize * 0.05) {    // Spacing between elements depends on orientation and size
                     // Title
                     Label("My Sketches", systemImage: "photo")
