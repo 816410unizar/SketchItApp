@@ -95,7 +95,8 @@ struct SketchView: View {
                         Menu {
                             Button("Save") {
                                 if sketch != nil {
-                                    tmpTitle = sketchTitle // Pre-fill temporary title for editing
+                                    // To display the current title in the alert
+                                    tmpTitle = sketchTitle
                                 }
                                 showSaveAlert = true
                             }
@@ -124,13 +125,11 @@ struct SketchView: View {
                         tmpTitle = ""  // Reset the temporary title
                     }
                     Button("Save") {
-                        sketchTitle = tmpTitle
-                        saveSketch(title: sketchTitle, overwrite: sketch != nil)
-                        tmpTitle = ""
-                        saved = true
+                        sketchTitle = tmpTitle  // Set the title to the new title
+                        saveSketch(title: tmpTitle, overwrite: sketchID != nil)    // Save the sketch with the new title
+                        tmpTitle = ""   // Reset the temporary title
+                        saved = true    // Set the sketch as saved
                     }
-                    .disabled(tmpTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || tmpTitle.count > 25)
-
                     // Disable the Save button if the title is empty (incluiding spaces) or exceeds 25 characters
                     .disabled(tmpTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || tmpTitle.count > 25)
                 } message: {
@@ -171,25 +170,28 @@ struct SketchView: View {
 
     // Save a sketch in UserDefaults with a unique ID
     func saveSketch(title: String, overwrite: Bool = false) {
-        var sketches: [Sketch] = []
-        if let data = UserDefaults.standard.data(forKey: "savedSketches"),
-           let decoded = try? JSONDecoder().decode([Sketch].self, from: data) {
-            sketches = decoded
-        }
+        // Load existing sketches from UserDefaults
+        var savedSketches = loadAllSketches()
 
+        // Create a new sketch with the current points and title, and id if editing an existing sketch
         let newSketch = Sketch(id: sketchID ?? UUID(), title: title, points: points, lastPoint: currentPoint)
 
-        if overwrite, let index = sketches.firstIndex(where: { $0.id == newSketch.id }) {
-            sketches[index] = newSketch
-        } else {
-            sketches.append(newSketch)
+        // If the sketch is being edited, replace the existing sketch with the new one
+        if overwrite, let index = savedSketches.firstIndex(where: { $0.id == newSketch.id }) {
+            savedSketches[index] = newSketch
+        } else {  // Otherwise, append the new sketch to the list of existing sketches
+            savedSketches.append(newSketch)
+            // Update the sketchID to the new sketch's ID
+            sketchID = newSketch.id
         }
 
-        if let encoded = try? JSONEncoder().encode(sketches) {
-            UserDefaults.standard.set(encoded, forKey: "savedSketches")
+        // Save the updated sketches to UserDefaults
+        do {
+            let data = try JSONEncoder().encode(savedSketches)
+            UserDefaults.standard.set(data, forKey: "savedSketches")
+        } catch {
+            print("Failed to save sketch: \(error)")
         }
-
-        sketchID = newSketch.id //Save the ID just in case this was a new sketch
     }
 
 
