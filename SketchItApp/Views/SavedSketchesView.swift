@@ -8,8 +8,10 @@
 import SwiftUI
 
 struct SavedSketchesView: View {
-    @EnvironmentObject var navModel: NavigationModel    // Shared instance of NavigationModel to handle navigation
-    
+    @EnvironmentObject var navModel: NavigationModel
+    @State private var savedSketches: [Sketch] = []
+    @State private var scrollOffset: CGFloat = 0
+
     var body: some View {
         // GeometryReader needed to auto update when orientation changes
         GeometryReader { geometry in
@@ -29,25 +31,21 @@ struct SavedSketchesView: View {
                         .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 3)
                         .padding(.top, isBigPhone ? refSize * 0.07 : 0) // Add padding to the top for big phones
                     
+                    // List of saved sketches
                     ScrollView {    // To allow scrolling if the list is too long
-                        // List of saved sketches
                         VStack(spacing: 8) {
                             // Show the Sketch title and view/edit buttons
-                            // ForEach(playerScores.prefix(maxScoresToShow), id: \.id) { playerScore in
-                            //     // 2 columns: Player name and score
-                            //     HStack {
-                            //         Text("\(playerScore.playerName)")
-                            //             .font(.system(size: 16, design: .rounded))
-                            //             .fontWeight(.bold)
-                            //             .frame(maxWidth: .infinity, alignment: .leading)    // Align to the left
-                                    
-                            //         Text("\(playerScore.score)")
-                            //             .font(.system(size: 16, design: .rounded))
-                            //             .fontWeight(.bold)
-                            //             .frame(alignment: .trailing)    // Align to the right
-                            //     }
-                            //     .padding()
-                            // }
+                            ForEach(savedSketches, id: \.id) { sketch in
+                                SketchRowWithIcons( // Display auxiliary view with sketch title and buttons
+                                    sketch: sketch,
+                                    onEdit: { selectedSketch in
+                                        navModel.currentScreen = .sketch(sketch: selectedSketch)
+                                    },
+                                    onDelete: { sketchToDelete in
+                                        deleteSketch(sketchToDelete)
+                                    }
+                                )
+                            }
                         }
                         .padding(.horizontal)
                         .frame(maxWidth: isLandscape ? screenSize.width * 0.8 : screenSize.width) // Control max width for landscape mode
@@ -84,19 +82,77 @@ struct SavedSketchesView: View {
         }
         .onAppear {
             // For testing purposes, uncomment the following lines to remove previous values from UserDefaults
-            // UserDefaults.standard.removeObject(forKey: "PlayerScores") // Remove previous scores for testing purposes
-            // UserDefaults.standard.removeObject(forKey: "HighScore") // Remove previous player name for testing purposes
-            
-            // If there is a new sketch to save, save it in UserDefaults
-            
+            // UserDefaults.standard.removeObject(forKey: "savedSketches") // Remove previous scores for testing purposes
+
             // Load saved sketches info from UserDefaults
             loadSavedSketches()
         }
     }
     
-    // Load saved sketches from UserDefaults
-    func loadSavedSketches() {
-        // Implement
+    // Auxiliary view to show the sketch title and buttons to edit or delete it
+    struct SketchRowWithIcons: View {
+        @State private var showDeleteAlert = false
+        var sketch: Sketch
+        var onEdit: (Sketch) -> Void    // Callback to edit the sketch
+        var onDelete: (Sketch) -> Void  // Callback to delete the sketch
+
+        var body: some View {
+            HStack {    // 2 columns: sketch title and buttons
+                // Title
+                Text(sketch.title)
+                    .font(.system(size: 16, design: .rounded))
+                    .fontWeight(.bold)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Buttons
+                HStack(spacing: 12) {   // 2 buttons: edit and delete
+                    Button(action: { onEdit(sketch) }) {
+                        Image(systemName: "square.and.pencil")
+                            .foregroundColor(.red)
+                            .font(.system(size: 22))
+                            .fontWeight(.bold)
+                    }
+
+                    Button(action: { showDeleteAlert = true }) {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                            .font(.system(size: 22))
+                            .fontWeight(.bold)
+                    }
+                    .alert("Are you sure you want to delete the sketch?", isPresented: $showDeleteAlert) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Yes", role: .destructive) {
+                            onDelete(sketch)
+                        }
+                    }
+                }
+            }
+            .padding()
+            .background(Color(red: 1.0, green: 0, blue: 0).opacity(0.2))
+            .cornerRadius(15)
+            .padding(.horizontal)
+        }
+    }
+
+    // Function to load saved sketches from UserDefaults
+    private func loadSavedSketches() {
+        if let data = UserDefaults.standard.data(forKey: "savedSketches"),
+           let decoded = try? JSONDecoder().decode([Sketch].self, from: data) {
+            savedSketches = decoded.sorted { $0.title < $1.title }
+        }
+    }
+
+    // Function to delete a sketch from UserDefaults
+    private func deleteSketch(_ sketch: Sketch) {
+        savedSketches.removeAll { $0.id == sketch.id }
+        saveSketches()  // Save the updated list of sketches
+    }
+
+    // Function to save the sketches to UserDefaults
+    private func saveSketches() {
+        if let encoded = try? JSONEncoder().encode(savedSketches) {
+            UserDefaults.standard.set(encoded, forKey: "savedSketches")
+        }
     }
 }
 
