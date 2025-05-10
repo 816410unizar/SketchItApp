@@ -217,22 +217,4 @@ struct SketchView: View {
 
     return RootView()   // Root view displaying the current screen
         .environmentObject(navModel)
-    // func loadFirstSavedSketch() -> Sketch? {
-    //         if let data = UserDefaults.standard.data(forKey: "Sketches") {
-    //             do {
-    //                 let sketches = try JSONDecoder().decode([Sketch].self, from: data)
-    //                 return sketches.first
-    //             } catch {
-    //                 print("Failed to load sketches: \(error)")
-    //             }
-    //         }
-    //         return nil
-    //     }
-
-    // let navModel = NavigationModel()
-    // let loadedSketch = loadFirstSavedSketch() // Load the first saved sketch
-    // navModel.currentScreen = .sketch(sketch: loadedSketch)
-
-    // return RootView()
-    //     .environmentObject(navModel)
 }

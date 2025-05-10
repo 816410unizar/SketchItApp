@@ -46,73 +46,34 @@ struct HomeView: View {
 
                         // 2 rows: New Sketch and My Sketches buttons
                         VStack(spacing: 30) {
-                            // New Sketch row
-                            //HStack(spacing: 15) {
-                                // Image("")
-                                //     .resizable()
-                                //     .frame(width: 60, height: 60)
-                                //     .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
-                                //     .onTapGesture {
-                                //         // Tapping the bubble is like clicking the button
-                                //         navModel.currentScreen = .settings
-                                //     }
-
-                                Button(action: {
-                                    navModel.currentScreen = .sketch(sketch: nil)
-                                }) {
-                                    Text("NEW SKETCH")
-                                        .font(.system(.title3, design: .rounded))   // Rounded font
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, 17)     // Height of the button
-                                        .padding(.horizontal, 55)   // Width of the button
-                                        .background(RoundedRectangle(cornerRadius: 15).fill(Color(red: 1.0, green: 0, blue: 0))) // Red
-                                        .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
-                                }
-                            // }
-                            // .frame(maxWidth: .infinity, alignment: .center) // Align to the center
-                            
-                            // My Sketches row
-                            // HStack(spacing: 15) {
-                                // Image("")
-                                //     .resizable()
-                                //     .frame(width: 60, height: 60)
-                                //     .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
-                                //     .onTapGesture {
-                                //         // Tapping the bubble is like clicking the button
-                                //         navModel.currentScreen = .highScore(playerName: nil, score: nil)
-                                //     }
-
-                                Button(action: {
-                                    navModel.currentScreen = .savedSketches
-                                }) {
-                                    Text("MY SKETCHES")
-                                        .font(.system(.title3, design: .rounded))   // Rounded font
-                                        .fontWeight(.bold)
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, 17)     // Height of the button
-                                        .padding(.horizontal, 49)   // Width of the button
-                                        .background(RoundedRectangle(cornerRadius: 15).fill(Color(red: 1.0, green: 0, blue: 0))) // Red
-                                        .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 7)
-                                }
-                            // }
-                            // .frame(maxWidth: .infinity, alignment: .center) // Align to the center
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center) // Align to the center
-                        KeyCommandHandler { command in
-                            if command.input == "s" {
-                                print("s key pressed")
+                            // New Sketch button
+                            Button(action: {
+                                navModel.currentScreen = .sketch(sketch: nil)
+                            }) {
+                                Text("NEW SKETCH")
+                                    .font(.system(.title3, design: .rounded))   // Rounded font
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 17)     // Height of the button
+                                    .padding(.horizontal, 55)   // Width of the button
+                                    .background(RoundedRectangle(cornerRadius: 15).fill(Color(red: 1.0, green: 0, blue: 0))) // Red
+                                    .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
+                            }
+                            // My Sketches button
+                            Button(action: {
                                 navModel.currentScreen = .savedSketches
+                            }) {
+                                Text("MY SKETCHES")
+                                    .font(.system(.title3, design: .rounded))   // Rounded font
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                    .padding(.vertical, 17)     // Height of the button
+                                    .padding(.horizontal, 49)   // Width of the button
+                                    .background(RoundedRectangle(cornerRadius: 15).fill(Color(red: 1.0, green: 0, blue: 0))) // Red
+                                    .shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 7)
                             }
                         }
-                        .frame(width: 0, height: 0)
-                        // Image below buttons
-                        // Image("")
-                        //     .resizable()
-                        //     .scaledToFit()
-                        //     .frame(width: refSize * 0.8)
-                            //.shadow(color: .pink.opacity(0.4), radius: 5, x: 0, y: 5)
-
+                        .frame(maxWidth: .infinity, alignment: .center) // Align to the center
                     }
                 }
             }
