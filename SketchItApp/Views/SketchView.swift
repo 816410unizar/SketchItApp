@@ -94,7 +94,7 @@ struct SketchView: View {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Menu {
                             Button("Save") {
-                                if sketch != nil {
+                                if sketchID != nil {
                                     // To display the current title in the alert
                                     tmpTitle = sketchTitle
                                 }
